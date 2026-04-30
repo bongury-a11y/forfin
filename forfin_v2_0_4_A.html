@@ -4373,19 +4373,19 @@
                             amount: e.amount,
                             asset: e.asset || null,
                             category: e.category || null,
-                            description: e.description || null,
+                            description: e.desc || null,
                             from_asset: e.fromAsset || null,
                             to_asset: e.toAsset || null,
                             to_amount: e.toAmount != null ? e.toAmount : null
                         }))},
                         { name: 'fixed_expenses', rows: (AppState.fixedExpenses || []).map(f => ({
                             id: String(f.id), user_id: uid,
-                            name: f.name, amount: f.amount,
-                            asset: f.asset || null, category: f.category || null,
-                            start_date: f.startDate || null, end_date: f.endDate || null,
-                            frequency: f.frequency || 'monthly',
-                            day_of_month: f.dayOfMonth || null,
-                            is_active: f.isActive !== false
+                            description: f.desc || '',
+                            amount: f.amount,
+                            category: f.category || null,
+                            day_of_month: parseInt(f.date) || 1,
+                            alerts: f.alerts || [],
+                            currency: f.currency || 'KRW'
                         }))}
                     ];
 
@@ -4476,18 +4476,22 @@
                     });
                     AppState.categories = cats;
                     AppState.entries = entriesR.data.map(e => ({
-                        id: e.id, type: e.type, date: e.date,
+                        id: Number(e.id) || e.id,  // Date.now() 숫자로 복원
+                        type: e.type, date: e.date,
                         amount: parseFloat(e.amount),
-                        asset: e.asset, category: e.category, description: e.description,
+                        asset: e.asset, category: e.category,
+                        desc: e.description || '',
                         fromAsset: e.from_asset, toAsset: e.to_asset,
                         toAmount: e.to_amount != null ? parseFloat(e.to_amount) : undefined
                     }));
                     AppState.fixedExpenses = fixedR.data.map(f => ({
-                        id: f.id, name: f.name, amount: parseFloat(f.amount),
-                        asset: f.asset, category: f.category,
-                        startDate: f.start_date, endDate: f.end_date,
-                        frequency: f.frequency, dayOfMonth: f.day_of_month,
-                        isActive: f.is_active
+                        id: Number(f.id) || f.id,  // Date.now() 숫자로 복원
+                        desc: f.description || '',
+                        amount: parseFloat(f.amount),
+                        category: f.category,
+                        date: f.day_of_month,
+                        alerts: f.alerts || [],
+                        currency: f.currency || 'KRW'
                     }));
                     AppState.customIcons = {};
                     iconsR.data.forEach(i => { AppState.customIcons[i.icon_key] = i.icon_value; });
